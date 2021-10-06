@@ -9,13 +9,12 @@ import locale
 import tqdm
 import re
 import math
+from settings import *
 
 locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
 
 
-TEMPLATES_DIR = '.\\templates'
-RESULT_DIR = '.\\generated'
-TEMPLATES_DATA_DIR = '.\\templates_data'
+
 learning_form_translator = {
     "очно-заочная": "очно-заочной",
     "очная": "очной",
@@ -36,10 +35,6 @@ MONTHS_TRANSLATOR = {
     11: 'ноября',
     12: 'декабря',
 }
-
-
-EXCEL_FILE = 'Данные для договоров внебюджет, очка 1 сем 2021-2022.xlsx'
-START_DATE = '«01» сентября 2021'
 
 
 def translate_month(date):
@@ -64,7 +59,7 @@ def render_gpd(context_list):
         filename_to_save = context['short_executor_name'].split(' ', maxsplit=1)
         filename_to_save = f"{filename_to_save[-1]} {filename_to_save[0]}.docx"
 
-        doc = DocxTemplate(os.path.join(TEMPLATES_DIR, 'шаблон внебюджет.docx'))
+        doc = DocxTemplate(os.path.join(TEMPLATES_DIR, CONTRACT_TEMPLATE))
         doc.render(context)
         doc.save(os.path.join(RESULT_DIR,'ГПД',filename_to_save))
     print("")
@@ -82,7 +77,7 @@ def render_justification(context_list):
         filename_to_save = context['short_executor_name'].split(' ', maxsplit=1)
         filename_to_save = f"{filename_to_save[-1]} {filename_to_save[0]}-справка.docx"
 
-        doc = DocxTemplate(os.path.join(TEMPLATES_DIR, 'Справка обоснование.docx'))
+        doc = DocxTemplate(os.path.join(TEMPLATES_DIR, REFERENCE_TEMPLATE))
         doc.render(context)
         doc.save(os.path.join(RESULT_DIR, 'Справки', filename_to_save))
 
@@ -231,9 +226,9 @@ def make_context(df, start_date):
     return context_list
 
 
-
-df = get_dataframe(EXCEL_FILE)
-context = make_context(df, START_DATE)
-render_justification(context)
-render_gpd(context)
+if __name__ == '__main__':
+    df = get_dataframe(EXCEL_FILE)
+    context = make_context(df, START_DATE)
+    render_justification(context)
+    render_gpd(context)
 
